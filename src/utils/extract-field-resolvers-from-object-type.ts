@@ -1,4 +1,6 @@
-import { GraphQLObjectType, GraphQLInterfaceType, DocumentNode, buildASTSchema } from "graphql";
+import { GraphQLObjectType, GraphQLInterfaceType, DocumentNode, ObjectTypeDefinitionNode } from "graphql";
+import { getDefinitionNodesFromTypeDefs } from ".";
+import { isGraphQLType, isGraphQLTypeExtension } from "../epoxy/typedefs-mergers/utils";
 
 export interface IFieldResolvers {
     [fieldName: string]: ((...args: any[]) => any) | { subscribe: (...args: any[]) => any };
@@ -12,14 +14,19 @@ export function extractFieldResolversFromObjectType(objectType: GraphQLObjectTyp
     const fieldResolvers: IFieldResolvers = {};
     const fieldMap = objectType.getFields();
     let selectedFieldNames: string[];
-    if (options && options.selectedTypeDefs) {
-        const invalidSchema = buildASTSchema(options.selectedTypeDefs);
-        const typeMap = invalidSchema.getTypeMap();
-        if (! (objectType.name in typeMap)) {
-            return {};
+    if( options && options.selectedTypeDefs) {
+        const definitionNodes = getDefinitionNodesFromTypeDefs(options.selectedTypeDefs);
+        const definitionNode = definitionNodes.find(definitionNode => {
+            if (isGraphQLType(definitionNode) || isGraphQLTypeExtension(definitionNode)) {
+                return definitionNode.name.value === objectType.name;
+            } else {
+                return false;
+            }
+        }) as ObjectTypeDefinitionNode;
+        if (definitionNode) {
+            selectedFieldNames = definitionNode.fields.map(field => field.name.value);
         } else {
-            const selectedObjectType = typeMap[objectType.name] as GraphQLObjectType | GraphQLInterfaceType;
-            selectedFieldNames = Object.keys(selectedObjectType.getFields());
+            return {};
         }
     }
     for ( const fieldName in fieldMap ) {

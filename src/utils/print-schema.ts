@@ -31,7 +31,7 @@ function extendDefinition(type: GraphQLNamedType): GraphQLNamedType['astNode'] {
   }
 
   
-export function printSchema(schema: GraphQLSchema) {
+export function printSchema(schema: GraphQLSchema): string {
     let typesMap = schema.getTypeMap();
     const validAstNodes = Object.keys(typesMap).filter(key => typesMap[key].astNode);
 
@@ -65,7 +65,5 @@ export function printSchema(schema: GraphQLSchema) {
       .getDirectives()
       .map(directive => (directive.astNode ? print(directive.astNode) : null))
       .filter(e => e);
-    const printedSchema = [...directivesDeclaration, ...allTypesPrinted, schemaDefinition].join('\n');
-
-    return parse(printedSchema);
+    return [...directivesDeclaration, ...allTypesPrinted, schemaDefinition].join('\n');
 }

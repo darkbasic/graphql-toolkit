@@ -4,7 +4,6 @@ import {
   EnumTypeDefinitionNode,
   NamedTypeNode,
   ObjectTypeDefinitionNode,
-  Source,
   UnionTypeDefinitionNode,
   ScalarTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
@@ -19,14 +18,6 @@ import {
   ScalarTypeExtensionNode,
   InterfaceTypeExtensionNode,
 } from 'graphql';
-
-export function isStringTypes(types: any): types is string {
-  return typeof types === 'string';
-}
-
-export function isSourceTypes(types: any): types is Source {
-  return types instanceof Source;
-}
 
 export function isGraphQLType(definition: DefinitionNode): definition is ObjectTypeDefinitionNode {
   return definition.kind === 'ObjectTypeDefinition';

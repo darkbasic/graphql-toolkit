@@ -1,6 +1,8 @@
-import { GraphQLSchema, GraphQLScalarType, GraphQLObjectType, GraphQLInterfaceType, DocumentNode, buildASTSchema } from "graphql";
+import { GraphQLSchema, GraphQLScalarType, GraphQLObjectType, GraphQLInterfaceType, DocumentNode } from "graphql";
 import { IResolvers } from "graphql-tools";
 import { extractFieldResolversFromObjectType } from "./extract-field-resolvers-from-object-type";
+import { getDefinitionNodesFromTypeDefs } from "./get-definition-nodes-from-typedefs";
+import { isGraphQLType, isGraphQLTypeExtension } from "../epoxy/typedefs-mergers/utils";
 
 export interface ExtractResolversFromSchemaOptions {
     selectedTypeDefs?: DocumentNode;
@@ -11,8 +13,13 @@ export function extractResolversFromSchema(schema: GraphQLSchema, options ?: Ext
     const typeMap = schema.getTypeMap();
     let selectedTypeNames: string[];
     if( options && options.selectedTypeDefs) {
-        const invalidSchema = buildASTSchema(options.selectedTypeDefs);
-        selectedTypeNames = Object.keys(invalidSchema.getTypeMap());
+        const definitionNodes = getDefinitionNodesFromTypeDefs(options.selectedTypeDefs);
+        for (const definitionNode of definitionNodes) {
+            if (isGraphQLType(definitionNode) || isGraphQLTypeExtension(definitionNode)) {
+                selectedTypeNames = selectedTypeNames || [];
+                selectedTypeNames.push(definitionNode.name.value);
+            }
+        }
     }
     for (const typeName in typeMap) {
         if (!typeName.startsWith('__')){

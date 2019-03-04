@@ -7,3 +7,4 @@ export * from './resolvers-composition';
 export * from './extract-field-resolvers-from-object-type';
 export * from './extract-resolvers-from-schema';
 export * from './print-schema';
+export * from './get-definition-nodes-from-typedefs';

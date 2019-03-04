@@ -5,9 +5,9 @@ import {
   parse,
   Source,
 } from 'graphql';
-import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
+import { isGraphQLSchema, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
-import { createSchemaDefinition } from '../../utils/helpers';
+import { createSchemaDefinition, isStringTypes, isSourceTypes } from '../../utils/helpers';
 import { printSchema } from '../../utils';
 
 interface Config {
@@ -38,11 +38,10 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
-        return printSchema(type);
+        return parse(printSchema(type));
       } else if (isStringTypes(type) || isSourceTypes(type)) {
         return parse(type);
       }
-
       return type;
     })
     .map(ast => ast.definitions)

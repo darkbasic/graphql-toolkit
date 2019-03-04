@@ -1,4 +1,4 @@
-import { GraphQLObjectType } from "graphql";
+import { GraphQLObjectType, Source } from "graphql";
 
 export const asArray = <T>(fns: T | T[]) => (Array.isArray(fns) ? fns : [fns]);
 
@@ -36,4 +36,12 @@ export function createSchemaDefinition(def: { query: string | GraphQLObjectType 
   }
 
   return undefined;
+}
+
+export function isStringTypes(types: any): types is string {
+  return typeof types === 'string';
+}
+
+export function isSourceTypes(types: any): types is Source {
+  return types instanceof Source;
 }
